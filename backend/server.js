@@ -29,11 +29,40 @@ app.use('/api/login', loginRoutes);
 app.use('/api/logout', logoutRoutes);
 app.use('/api/auth/refresh', refreshRoutes);
 
+const games = new Map();
+
 io.on('connection', socket => {
     console.log(socket.id);
     socket.on('customEvent', (string) => {
         console.log(string);
     });
+
+    socket.on('joinGame', (id) => {
+        const game = games.get(id);
+        if (!game) {
+            socket.emit("error", "Room has not been found");
+            return
+        }
+
+         if (game.players.length >= 2) {
+            socket.emit("error", "Room has already two players");
+        }
+
+        game.players.push(socket.id);
+        console.log("game joined with id: ", id);
+        console.log(game.players.size, " players in the game");
+        socket.join(id)
+    });
+
+    socket.on('createGame', (id) => {
+        games.set(id, { hostId: socket.id, players: [socket.id]});
+        console.log("game created with id: ", id);
+        socket.join(id);
+    })
+
+    socket.on('disconnect', (reason) => {
+        console.log('client has disconnected: ', socket.id, reason);
+    })
 });
 
 app.listen(PORT, () => {
