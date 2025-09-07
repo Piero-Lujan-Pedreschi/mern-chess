@@ -10,22 +10,23 @@ export const createUser = async (req, res) => {
       .json({ success: false, message: "Please provide all fields" });
   }
 
-  const payload = {
-    id: user._id,
-    username: user.username,
-  };
-
-  const accessToken = generateAccessToken(payload);
-  const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
-
   const hashedPassword = await bcrypt.hash(user.password.trim(), 10);
-  const hashedRefreshToken = await bcrypt.hash(refreshToken.trim(), 10)
 
   const newUser = new User({
     ...user,
     password: hashedPassword.trim(),
-    refreshToken: hashedRefreshToken.trim()
   });
+
+   const payload = {
+     id: newUser._id,
+     username: newUser.username,
+   };
+
+   const accessToken = generateAccessToken(payload);
+   const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
+   const hashedRefreshToken = await bcrypt.hash(refreshToken.trim(), 10);
+
+   newUser.refreshToken = hashedRefreshToken.trim();
 
   try {
     await newUser.save();

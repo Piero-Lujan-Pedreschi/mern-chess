@@ -1,28 +1,42 @@
 import React, {useState} from "react";
-// import { useUserStore } from "../store/user";
+import { useUserStore } from "../store/user";
 import NavBar from "./navBar";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const HomePage: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  const { joinGame, createGame } = useUserStore();
   const [roomId, setRoomId] = useState("");
 
-  const joinGame = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleJoin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     console.log(roomId ? roomId : "no room id");
-    if (roomId) {
-      navigate(`/game/${roomId}?type=join`);
+    try {
+      const { success, message } = await joinGame(roomId);
+      // navigate(`/game/${roomId}?type=join`);
+      console.log("Success:", success);
+      console.log("Message:", message);
+    } catch (error) {
+      console.error("Failed to join game:", error);
+    } finally {
+      setRoomId("");
     }
-    setRoomId("");
   };
 
-  const createGame = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCreate = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     console.log(roomId ? roomId : "no room id");
-    if (roomId) {
-      navigate(`/game/${roomId}?type=create`);
-    }
-    setRoomId("");
+
+    try {
+      const { success, message } = await createGame(roomId);
+      // navigate(`/game/${roomId}?type=create`);
+      console.log("Success:", success);
+      console.log("Message:", message);
+    } catch (error) {
+      console.error("Failed to join game:", error);
+    } finally {
+      setRoomId("");
+    }    
   };
 
 
@@ -38,9 +52,12 @@ const HomePage: React.FC = () => {
           onChange={(event) => {
             setRoomId(event.target.value);
           }}
+          required
+          minLength={3}
+          maxLength={10}
         />
-        <button onClick={joinGame}>Join Game</button>
-        <button onClick={createGame}>Create Game</button>
+        <button onClick={handleJoin}>Join Game</button>
+        <button onClick={handleCreate}>Create Game</button>
       </form>
     </>
   );
