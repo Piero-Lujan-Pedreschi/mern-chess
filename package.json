@@ -4,7 +4,7 @@
   "description": "Functional chess game built with JavaScript, using MERN technologies for frontend and backend",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon backend/server.js"
+    "dev": "nodemon --cwd backend server.js"
   },
   "type": "module",
   "keywords": [],
