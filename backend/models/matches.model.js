@@ -1,30 +1,35 @@
 import mongoose from 'mongoose';
 
 const matchSchema = new mongoose.Schema({
+    roomId: {
+        type: String,
+        required: true,
+
+    },
+    
     player1: {
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true,
         },
 
         moves: {
             type: [String],
             default: [],
-        }
+        },
     }, 
 
     player2: {
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true,
+            default: null,
         },
 
         moves: {
             type: [String],
             default: [],
-        }
+        },
     },
 
     winner: {
@@ -41,7 +46,7 @@ const matchSchema = new mongoose.Schema({
 
     result: {
         type: String,
-        enum: ['win', 'loss', 'draw', 'resign', 'timeout', 'abandoned'],
+        enum: ['win', 'loss', 'draw', 'resign', 'timeout', 'abandoned', 'In Progress'],
         default: 'In Progress',
     },
 
@@ -55,3 +60,6 @@ const matchSchema = new mongoose.Schema({
         default: Date.now,
     }
 });
+
+const Match = mongoose.model('Match', matchSchema);
+export default Match;

@@ -105,14 +105,14 @@ export const useUserStore = create<UserStore>((set) => ({
     joinGame: async (roomId) => {
         console.log("joinGame called with roomId:", roomId);
         const state = useUserStore.getState();
-        const currentUser = state.currentUser;
+        const joiningPlayer = state.currentUser;
 
 
         if (!roomId) {
             console.log("No room ID provided");
             return { success: false, message:"Please provide a room ID."}
         }
-        if (!currentUser) {
+        if (!joiningPlayer) {
             console.log("No user is currently logged in");
             return { success: false, message: "No user is currently logged in."}
         }
@@ -123,7 +123,7 @@ export const useUserStore = create<UserStore>((set) => ({
               headers: {
                 "Content-Type": "application/json",
               },
-            body: JSON.stringify({ roomId, currentUser: currentUser._id }),
+            body: JSON.stringify({ roomId, joiningPlayer: joiningPlayer._id }),
             });
 
             const data = await res.json();
@@ -142,14 +142,14 @@ export const useUserStore = create<UserStore>((set) => ({
     createGame: async (roomId) => {
         console.log("createGame called with roomId:", roomId);
         const state = useUserStore.getState();
-        const currentUser = state.currentUser;
+        const hostPlayer = state.currentUser;
 
         if (!roomId) {
             console.log("No room ID provided");
             return { success: false, message:"Please provide a room ID."}
         }
 
-        if (!currentUser) {
+        if (!hostPlayer) {
           console.log("No user is currently logged in");
           return { success: false, message: "No user is currently logged in." };
         }
@@ -160,7 +160,7 @@ export const useUserStore = create<UserStore>((set) => ({
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ roomId, currentUser: currentUser._id })
+                body: JSON.stringify({ roomId, hostPlayer: hostPlayer._id })
                 }
             );
 
