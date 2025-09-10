@@ -8,11 +8,11 @@ import {  joinGame, createGame } from "../controllers/games.controller.js";
 const router = express.Router();
 
 router.post("/create", (req, res, next) => {
-    console.log("Post /api/games/create hit");
-    console.log("Request body:", req.body);
-    next();
-},
-createGame
+        console.log("Post /api/games hit");
+        console.log("Request body:", req.body);
+        next();
+    },
+    createGame
 );
 
 router.post("/join", (req, res, next) => {

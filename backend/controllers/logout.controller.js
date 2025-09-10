@@ -7,7 +7,7 @@ export const logoutUser = async (req, res) => {
     try {
         const refreshToken = req.cookies.jwt
         if (!refreshToken) {
-            res.status(401).json({ success: false, message: "No token provided" });
+            return res.status(401).json({ success: false, message: "No token provided" });
         }
 
         await User.updateOne(

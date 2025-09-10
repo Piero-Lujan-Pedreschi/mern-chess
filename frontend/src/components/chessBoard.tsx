@@ -3,10 +3,13 @@ import { Chessboard } from "react-chessboard";
 import type { PieceDropHandlerArgs, PieceHandlerArgs } from "react-chessboard";
 import { Chess } from "chess.js";
 
-const ChessBoard: React.FC = () => {
+type PlayerColorProps = {playerColor: 'white' |'black' };
+
+const ChessBoard: React.FC<PlayerColorProps> = ({ playerColor }) => {
   // create a chess game using a ref to maintain the game state across renders
   const chessGameRef = useRef(new Chess());
   const chessGame = chessGameRef.current;
+  console.log(playerColor, "when in chess component");
 
   // track the current position of the chess game in state
   const [chessPosition, setChessPosition] = useState(chessGame.fen());
@@ -80,18 +83,18 @@ const ChessBoard: React.FC = () => {
       }}
     >
       <div>
-        <p style={{ textAlign: "center" }}>White&apos;s perspective</p>
         <div style={{ maxWidth: "400px" }}>
-          <Chessboard options={whiteBoardOptions} />
+          <p>{playerColor}</p>
+          <Chessboard options={playerColor == 'white'? whiteBoardOptions : blackBoardOptions}/>
         </div>
       </div>
 
-      <div>
+      {/* <div>
         <p style={{ textAlign: "center" }}>Black&apos;s perspective</p>
         <div style={{ maxWidth: "400px" }}>
           <Chessboard options={blackBoardOptions} />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

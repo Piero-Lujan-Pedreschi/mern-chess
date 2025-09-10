@@ -1,10 +1,10 @@
 import React, {useState} from "react";
 import { useUserStore } from "../store/user";
 import NavBar from "./navBar";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const HomePage: React.FC = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { joinGame, createGame } = useUserStore();
   const [roomId, setRoomId] = useState("");
 
@@ -13,9 +13,11 @@ const HomePage: React.FC = () => {
     console.log(roomId ? roomId : "no room id");
     try {
       const { success, message } = await joinGame(roomId);
-      // navigate(`/game/${roomId}?type=join`);
-      console.log("Success:", success);
-      console.log("Message:", message);
+      if (success) {
+        navigate(`/game/${roomId}?type=join`);
+        console.log("Success:", success);
+        console.log("Message:", message);
+      }
     } catch (error) {
       console.error("Failed to join game:", error);
     } finally {
@@ -29,11 +31,13 @@ const HomePage: React.FC = () => {
 
     try {
       const { success, message } = await createGame(roomId);
-      // navigate(`/game/${roomId}?type=create`);
-      console.log("Success:", success);
-      console.log("Message:", message);
+      if (success) {
+        navigate(`/game/${roomId}?type=create`);
+        console.log("Success:", success);
+        console.log("Message:", message);
+      }
     } catch (error) {
-      console.error("Failed to join game:", error);
+      console.error("Failed to Create game:", error);
     } finally {
       setRoomId("");
     }    

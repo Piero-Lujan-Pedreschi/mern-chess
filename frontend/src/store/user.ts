@@ -171,7 +171,7 @@ export const useUserStore = create<UserStore>((set) => ({
 
             return { success: true, message: data.message || "Created game successfully" };
         } catch (error) {
-            console.log(error);
+            console.log("error", error);
             return { success: false, message: "Failed to create game: " };
         }
     }
