@@ -36,7 +36,11 @@ export default function registerSocketHandlers(io) {
       socket.join(id);
     });
 
-    // socket.on;
+    socket.on('move', (move, roomId) => {
+      console.log("Serverside move : ", move);
+      // find a way to send to db
+      socket.to(roomId).emit('lastMove', move);
+    });
 
     socket.on("disconnect", (reason) => {
       console.log("client has disconnected: ", socket.id, reason);

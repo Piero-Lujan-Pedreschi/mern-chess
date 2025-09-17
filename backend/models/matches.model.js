@@ -50,6 +50,11 @@ const matchSchema = new mongoose.Schema({
         default: 'In Progress',
     },
 
+    moves: {
+        type: [String],
+        default: [],
+    },
+
     eventHistory: {
         type: [String],
         default: ["Game Started"],

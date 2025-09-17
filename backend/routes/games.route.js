@@ -3,7 +3,7 @@ import User from "../models/users.model.js";
 import mongoose from 'mongoose';
 
 // import { createGame, joinGame, fetchGames, updateGames } from "../controllers/games.controller.js";
-import {  joinGame, createGame } from "../controllers/games.controller.js";
+import {  joinGame, createGame, updateMoves } from "../controllers/games.controller.js";
 
 const router = express.Router();
 
@@ -30,5 +30,13 @@ router.post("/join", (req, res, next) => {
 //     }, 
 //     fetchGames
 // );
+
+router.post("/updateMoves", (req, res, next) => {
+  console.log("Post /api/games/updateMoves");
+  console.log("Request body:", req.body);
+  next()
+},
+updateMoves
+);
 
 export default router;

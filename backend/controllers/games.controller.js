@@ -1,8 +1,6 @@
 import Match from "../models/matches.model.js";
-// import registerSocketHandlers from "../sockets/sockets.js";
 import { games } from "../sockets/sockets.js";
 
-// registerSocketHandlers(io);
 
 export const joinGame = async (req, res) => {
    const match = req.body;
@@ -81,6 +79,41 @@ export const createGame = async (req, res) => {
         console.error("Error in Create game: ", error.message);
         return res.status(500).json({ success: false, message: "Server error" });
     }
+}
+
+export const updateMoves = async (req, res) => {
+    const match = req.body;
+
+    if (!match.move) {
+        return res.status(400).json({ success: false, message: "Missing move data", data: null})
+    }
+
+    if (!isExistingGame(match.roomId)) {
+      return res.status(404).json({ success: false, message: "No game with this ID exists" });
+    }
+
+    const currentGame = isExistingGame(match.roomId);
+    const currentGameId = currentGame.matchId;
+
+    try {
+        console.log(match.move.after)
+        const updatedMatch = await Match.findByIdAndUpdate(
+          currentGameId,
+          { $push: { moves: match.move.after } },
+          { new: true }
+        );
+
+        games.set(match.roomId, {
+            ...games.get(match.roomId),
+            gameInstance: updatedMatch,
+        });
+
+        console.log(games.get(match.roomId).gameInstance.moves + " - moves ae updating");
+    } catch (error) {
+        console.log("Server error: ", error);
+        return res.status(500).json({ success: false, message: error, data: null });
+    }
+    res.status(200).json({ success: true, message: "successful call to backend", data: match.move});
 }
 
 

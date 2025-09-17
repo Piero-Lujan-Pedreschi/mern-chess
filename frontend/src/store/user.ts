@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { Move } from 'chess.js';
 
 type User = {
     _id?: string,
@@ -15,6 +16,7 @@ type UserStore = {
     logoutUser: () => Promise<{ success: boolean; message: string }>;
     joinGame: (roomId: string) => Promise<{ success: boolean; message: string }>;
     createGame: (roomId: string) => Promise<{ success: boolean; message: string }>;
+    movePiece: (move: Move, roomId: string) => Promise<{ success: boolean, message: string, data: Move | null}>;
 }
 
 export const useUserStore = create<UserStore>((set) => ({
@@ -173,6 +175,38 @@ export const useUserStore = create<UserStore>((set) => ({
         } catch (error) {
             console.log("error", error);
             return { success: false, message: "Failed to create game: " };
+        }
+    },
+
+    movePiece: async (move, roomId) => {
+        console.log("moving Piece");
+        if (!move) {
+            return { success: false, message: "No move provided", data: null }
+        }
+
+        try {
+            const res: Response = await fetch('/api/games/updateMoves', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ move, roomId })
+                }
+            );
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                return {
+                  success: false,
+                  message: "Server: failed to make move: " + data.message,
+                  data: null,
+                };
+            }
+
+            return { success: true, message: "Successfully made a move: " + data.message, data: data.move as Move }
+        } catch (error) {
+            return { success: false, message: "Server: failed to make move: " + error, data: null}
         }
     }
 }))

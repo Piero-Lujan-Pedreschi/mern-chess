@@ -1,18 +1,33 @@
-import React, { useRef, useState} from "react";
+import React, { useRef, useState, useEffect} from "react";
+import { useUserStore } from "../store/user";
 import { Chessboard } from "react-chessboard";
 import type { PieceDropHandlerArgs, PieceHandlerArgs } from "react-chessboard";
-import { Chess } from "chess.js";
+import { Chess, Move } from "chess.js";
 
-type PlayerColorProps = {playerColor: 'white' |'black' };
+type PlayerColorProps = {
+  playerColor: 'white' | 'black';
+  onLocalMove: (move: Move) => void;
+  opponentMove: Move;
+  roomId: string;
+};
 
-const ChessBoard: React.FC<PlayerColorProps> = ({ playerColor }) => {
+const ChessBoard: React.FC<PlayerColorProps> = ({ playerColor, onLocalMove, opponentMove, roomId }) => {
   // create a chess game using a ref to maintain the game state across renders
   const chessGameRef = useRef(new Chess());
   const chessGame = chessGameRef.current;
-  console.log(playerColor, "when in chess component");
-
+  const { movePiece } = useUserStore();
+  // console.log(playerColor, "when in chess component");
+  // console.log("opponentMove: ", opponentMove);
+  
   // track the current position of the chess game in state
   const [chessPosition, setChessPosition] = useState(chessGame.fen());
+
+  useEffect(() => {
+    if (opponentMove) {
+      chessGame.move(opponentMove);
+      setChessPosition(chessGame.fen());
+    }
+  }, [opponentMove, chessGame]);
 
   // handle piece drop
   function onPieceDrop({
@@ -26,13 +41,15 @@ const ChessBoard: React.FC<PlayerColorProps> = ({ playerColor }) => {
 
       // try to make the move according to chess.js logic
       try {
-        chessGame.move({
+        const move = chessGame.move({
           from: sourceSquare,
           to: targetSquare,
           promotion: 'q' // always promote to a queen for example simplicity
         });
 
-        // update the position state upon successful move to trigger a re-render of the chessboard
+        console.log("move: ", move);
+        onLocalMove(move);
+        movePiece(move, roomId);
         setChessPosition(chessGame.fen());
 
         // return true as the move was successful
@@ -93,6 +110,12 @@ const ChessBoard: React.FC<PlayerColorProps> = ({ playerColor }) => {
         <p style={{ textAlign: "center" }}>Black&apos;s perspective</p>
         <div style={{ maxWidth: "400px" }}>
           <Chessboard options={blackBoardOptions} />
+        </div>
+      </div>
+      <div>
+        <p style={{ textAlign: "center" }}>Black&apos;s perspective</p>
+        <div style={{ maxWidth: "400px" }}>
+          <Chessboard options={whiteBoardOptions} />
         </div>
       </div> */}
     </div>
