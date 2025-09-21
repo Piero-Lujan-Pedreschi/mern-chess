@@ -46,7 +46,7 @@ const matchSchema = new mongoose.Schema({
 
     result: {
         type: String,
-        enum: ['win', 'loss', 'draw', 'resign', 'timeout', 'abandoned', 'In Progress'],
+        enum: ['complete', 'draw', 'resign', 'timeout', 'abandoned', 'In Progress'],
         default: 'In Progress',
     },
 

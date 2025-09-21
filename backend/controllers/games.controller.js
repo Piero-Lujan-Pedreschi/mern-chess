@@ -108,7 +108,7 @@ export const updateMoves = async (req, res) => {
             gameInstance: updatedMatch,
         });
 
-        console.log(games.get(match.roomId).gameInstance.moves + " - moves ae updating");
+        // console.log(games.get(match.roomId).gameInstance.moves + " - moves ae updating");
     } catch (error) {
         console.log("Server error: ", error);
         return res.status(500).json({ success: false, message: error, data: null });

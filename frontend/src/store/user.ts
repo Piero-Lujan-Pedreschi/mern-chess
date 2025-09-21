@@ -204,7 +204,7 @@ export const useUserStore = create<UserStore>((set) => ({
                 };
             }
 
-            return { success: true, message: "Successfully made a move: " + data.message, data: data.move as Move }
+            return { success: true, message: "Successfully made a move: " + data.message, data: data.data }
         } catch (error) {
             return { success: false, message: "Server: failed to make move: " + error, data: null}
         }

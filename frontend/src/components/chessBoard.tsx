@@ -18,7 +18,7 @@ const ChessBoard: React.FC<PlayerColorProps> = ({ playerColor, onLocalMove, oppo
   const { movePiece } = useUserStore();
   // console.log(playerColor, "when in chess component");
   // console.log("opponentMove: ", opponentMove);
-  
+
   // track the current position of the chess game in state
   const [chessPosition, setChessPosition] = useState(chessGame.fen());
 
@@ -26,46 +26,52 @@ const ChessBoard: React.FC<PlayerColorProps> = ({ playerColor, onLocalMove, oppo
     if (opponentMove) {
       chessGame.move(opponentMove);
       setChessPosition(chessGame.fen());
+      checkOpponentMove(opponentMove);
     }
   }, [opponentMove, chessGame]);
+  //add if statements to see if possible checkmate or check to warn player
 
   // handle piece drop
-  function onPieceDrop({
-      sourceSquare,
-      targetSquare
-    }: PieceDropHandlerArgs) {
-      // type narrow targetSquare potentially being null (e.g. if dropped off board)
-      if (!targetSquare) {
-        return false;
-      }
-
-      // try to make the move according to chess.js logic
-      try {
-        const move = chessGame.move({
-          from: sourceSquare,
-          to: targetSquare,
-          promotion: 'q' // always promote to a queen for example simplicity
-        });
-
-        console.log("move: ", move);
-        onLocalMove(move);
-        movePiece(move, roomId);
-        setChessPosition(chessGame.fen());
-
-        // return true as the move was successful
-        return true;
-      } catch {
-        // return false as the move was not successful
-        return false;
-      }
+  function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
+    // type narrow targetSquare potentially being null (e.g. if dropped off board)
+    if (!targetSquare) {
+      return false;
     }
+
+    const move = chessGame.move({
+      from: sourceSquare,
+      to: targetSquare,
+      promotion: "q", // always promote to a queen for example simplicity
+    });
+
+    if (!move) return false;
+
+    console.log("move: ", move);
+    setChessPosition(chessGame.fen());
+
+    (async () => {
+      try {
+        onLocalMove(move);
+        const moveData =  await movePiece(move, roomId);
+
+        if (moveData.success) {
+          checkMove(moveData);
+        }
+
+      } catch (error) {
+        console.error("failed to send move: ", error);
+      }
+    })();
+
+    return true;
+  }
 
   function canDragPieceWhite({ piece }: PieceHandlerArgs) {
     return piece.pieceType[0] === "w";
   }
 
   // allow black to only drag black pieces
-  function canDragPieceBlack({piece }: PieceHandlerArgs) {
+  function canDragPieceBlack({ piece }: PieceHandlerArgs) {
     return piece.pieceType[0] === "b";
   }
 
@@ -102,7 +108,11 @@ const ChessBoard: React.FC<PlayerColorProps> = ({ playerColor, onLocalMove, oppo
       <div>
         <div style={{ maxWidth: "400px" }}>
           <p>{playerColor}</p>
-          <Chessboard options={playerColor == 'white'? whiteBoardOptions : blackBoardOptions}/>
+          <Chessboard
+            options={
+              playerColor == "white" ? whiteBoardOptions : blackBoardOptions
+            }
+          />
         </div>
       </div>
 
@@ -123,3 +133,34 @@ const ChessBoard: React.FC<PlayerColorProps> = ({ playerColor, onLocalMove, oppo
 };
 
 export default ChessBoard;
+
+function checkMove(moveData: { success: boolean; message: string; data: Move | null; }) {
+  const yourMove = moveData.data?.san;
+  console.log(typeof yourMove); 
+  console.log(yourMove);
+  if (!yourMove) {
+    console.log("yourMove does not exist");
+    throw new Error("yourMove has not been instantiated a value");
+  } else if (yourMove.includes("+")) {
+    console.log("You have checked your opponent");
+  } else if (yourMove.includes("#")) {
+    console.log("You have checkmated your opponent");
+  } else if (yourMove.includes("O-O")) {
+    console.log("You castled")
+  }
+  
+}
+
+function checkOpponentMove(opponentMove: Move) {
+  const oppMove = opponentMove.san;
+  console.log(typeof oppMove);
+  console.log(oppMove);
+  if (!oppMove) {
+    console.log("oppMove does not exist");
+    throw new Error("oppMove has not been instantiated a value");
+  } else if (oppMove.includes("+")) {
+    console.log("You have been checked");
+  } else if (oppMove.includes("#")) {
+    console.log("You have been checkmated");
+  } 
+}
