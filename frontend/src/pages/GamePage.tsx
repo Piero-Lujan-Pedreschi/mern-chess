@@ -1,4 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
+import { useUserStore } from "../store/user";
+import { useNavigate } from "react-router-dom";
+import NavBar from "./navBar";
 import ChessBoard from '../components/chessBoard';
 import { io, Socket } from 'socket.io-client';
 import { useParams, useLocation } from 'react-router-dom';
@@ -10,10 +13,13 @@ const GamePage: React.FC = () => {
     const location = useLocation();
     const query = new URLSearchParams(location.search);
     const type = query.get('type');
+    const { currentUser } = useUserStore();
     const [playerColor, setPlayerColor] = useState<'white' | 'black'>('white');
     const [lastMoveFromSocket, setLastMoveFromSocket] = useState<Move | null>(null);
+    const navigate = useNavigate();
     
     useEffect(() => {
+        // console.log(currentUser);
         socketRef.current = io('http://localhost:3000');
 
         socketRef.current.on('connect', () => {
@@ -40,23 +46,31 @@ const GamePage: React.FC = () => {
             setLastMoveFromSocket(move);
         })
 
+        socketRef.current.on('cancelGame', () => {
+            console.log("cancel game called");
+            console.log("host has abandoned the game");
+            navigate(`/`);
+        })
+
         return () => {
-            socketRef.current?.emit("leaveRoom", roomId);
+            socketRef.current?.emit("leaveGame", roomId, currentUser);
             socketRef.current?.disconnect();
         };
-    }, [type, roomId]);
+    }, [type, roomId, currentUser, navigate]);
 
 
 
     return (
-        <div>
-            <h1>game page</h1>
-            <ChessBoard 
-                playerColor={playerColor}
-                onLocalMove={(move) => socketRef.current?.emit('move', move, roomId)}
-                opponentMove={lastMoveFromSocket as Move} 
-                roomId={roomId!}/>
-        </div>
+      <div>
+        <NavBar />
+        <h1>game page</h1>
+        <ChessBoard
+          playerColor={playerColor}
+          onLocalMove={(move) => socketRef.current?.emit("move", move, roomId)}
+          opponentMove={lastMoveFromSocket as Move}
+          roomId={roomId!}
+        />
+      </div>
     );
 }
 

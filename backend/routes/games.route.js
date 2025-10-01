@@ -33,7 +33,7 @@ router.post("/join", (req, res, next) => {
 
 router.post("/updateMoves", (req, res, next) => {
   console.log("Post /api/games/updateMoves");
-  console.log("Request body:", req.body);
+  // console.log("Request body:", req.body);
   next()
 },
 updateMoves

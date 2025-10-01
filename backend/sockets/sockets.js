@@ -1,49 +1,94 @@
 import Match from "../models/matches.model.js";
-
-export const games = new Map();
+import { games } from '../controllers/games.controller.js';
 
 export default function registerSocketHandlers(io) {
   io.on("connection", (socket) => {
-    console.log(socket.id);
+    console.log("socket is: ", socket.id);
     socket.on("customEvent", (string) => {
       console.log(string);
     });
 
-    socket.on("joinGame", (id) => {
-      // console.log(games.get(id));
-      // const game = games.get(id);
-      // if (!game) {
-      //   console.log("game not found with id: ", id);
-      //   socket.emit("error", "Room has not been found");
-      //   return;
-      // }
-
-      // if (game.players.length >= 2) {
-      //   console.log(game.players.length, " players already in the game");
-      //   socket.emit("error", "Room has already two players");
-      //   return;
-      // }
-
-      // game.players.push(socket.id);
-      console.log("game joined with id: ", id);
-      // console.log(game.players.length, " players in the game");
-      socket.join(id);
+    socket.on("joinGame", (roomId) => {
+      console.log("game joined with room id: ", roomId);
+      console.log("socket.id: ", socket.id);
+      socket.join(roomId);
     });
 
-    socket.on("createGame", (id) => {
-      // games.set(roomId: id, { hostId: socket.id, players: [socket.id] });
-      console.log("game created with id: ", id);
-      socket.join(id);
+    socket.on("createGame", (roomId) => {
+      console.log("game created with room id: ", roomId);
+      // console.log(games);
+      // console.log(isExistingGame(roomId));
+
+      socket.join(roomId);
     });
 
     socket.on('move', (move, roomId) => {
-      console.log("Serverside move : ", move);
+      console.log("Server side move : ", move);
       // find a way to send to db
       socket.to(roomId).emit('lastMove', move);
     });
 
+    socket.on('leaveGame', async (roomId, currentUser) => {
+      console.log(currentUser + "is leaving the room called");
+      console.log(currentUser);
+      const currentGame = isExistingGame(roomId);
+      console.log(games);
+      console.log(currentGame)
+
+      if (!currentGame) {
+        console.log("Game was already deleted");
+        io.to(roomId).emit(
+          "cancelGame",
+          "Room closed because host Player left"
+        );
+        return;
+      }
+
+      console.log("current user matches host: ", 
+        currentUser, currentUser._id === currentGame.hostPlayer.toHexString()
+      );
+
+      if (
+        currentUser &&
+        currentUser._id === currentGame.hostPlayer.toHexString()
+      ) {
+        console.log("player leaving is host");
+        const currentGameId = currentGame?.matchId;
+
+        const updatedMatch = await Match.findByIdAndUpdate(
+          currentGameId,
+          { result: "abandoned" },
+          { new: true }
+        );
+
+        //terminate the game from map and remaining players from room
+        games.delete(roomId);
+
+        const room = io.sockets.adapter.rooms.get(roomId);
+        
+        if (room) {
+          for (const socketId of room) {
+            const s = io.sockets.sockets.get(socketId);
+            console.log("calling cancel game for ", s);
+            io.to(roomId).emit(
+              "cancelGame",
+              "Room closed because host Player left"
+            );
+          }
+        }
+      }
+
+
+      console.log(games);
+    })
+
     socket.on("disconnect", (reason) => {
       console.log("client has disconnected: ", socket.id, reason);
+      console.log()
     });
   });
+}
+
+function isExistingGame(newRoomId) {
+  return games.get(newRoomId) || null;
 }

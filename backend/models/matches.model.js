@@ -1,69 +1,72 @@
 import mongoose from 'mongoose';
 
 const matchSchema = new mongoose.Schema({
-    roomId: {
-        type: String,
-        required: true,
+  roomId: {
+    type: String,
+    required: true,
+  },
 
-    },
-    
-    player1: {
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-        },
-
-        moves: {
-            type: [String],
-            default: [],
-        },
-    }, 
-
-    player2: {
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            default: null,
-        },
-
-        moves: {
-            type: [String],
-            default: [],
-        },
+  player1: {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
 
-    winner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        default: null,
-    },
-
-    loser: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        default: null,
-    },
-
-    result: {
-        type: String,
-        enum: ['complete', 'draw', 'resign', 'timeout', 'abandoned', 'In Progress'],
-        default: 'In Progress',
-    },
+    socketId: String,
 
     moves: {
-        type: [String],
-        default: [],
+      type: [String],
+      default: [],
+    },
+  },
+
+  player2: {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
 
-    eventHistory: {
-        type: [String],
-        default: ["Game Started"],
-    },
+    socketId: String,
 
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    }
+    moves: {
+      type: [String],
+      default: [],
+    },
+  },
+
+  winner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null,
+  },
+
+  loser: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null,
+  },
+
+  result: {
+    type: String,
+    enum: ["complete", "draw", "resign", "timeout", "abandoned", "In Progress"],
+    default: "In Progress",
+  },
+
+  moves: {
+    type: [String],
+    default: [],
+  },
+
+  eventHistory: {
+    type: [String],
+    default: ["Game Started"],
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const Match = mongoose.model('Match', matchSchema);

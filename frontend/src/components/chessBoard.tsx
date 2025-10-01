@@ -115,19 +115,6 @@ const ChessBoard: React.FC<PlayerColorProps> = ({ playerColor, onLocalMove, oppo
           />
         </div>
       </div>
-
-      {/* <div>
-        <p style={{ textAlign: "center" }}>Black&apos;s perspective</p>
-        <div style={{ maxWidth: "400px" }}>
-          <Chessboard options={blackBoardOptions} />
-        </div>
-      </div>
-      <div>
-        <p style={{ textAlign: "center" }}>Black&apos;s perspective</p>
-        <div style={{ maxWidth: "400px" }}>
-          <Chessboard options={whiteBoardOptions} />
-        </div>
-      </div> */}
     </div>
   );
 };

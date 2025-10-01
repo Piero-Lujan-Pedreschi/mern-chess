@@ -1,6 +1,6 @@
 import Match from "../models/matches.model.js";
-import { games } from "../sockets/sockets.js";
 
+export const games = new Map();
 
 export const joinGame = async (req, res) => {
    const match = req.body;
@@ -34,7 +34,7 @@ export const joinGame = async (req, res) => {
     res.status(200).json({ success: true,
             message: "game successfully create with id: " + updatedMatch._id + "  - and host player: " + updatedMatch.player1.user + " - and player2 : " + updatedMatch.player2.user,
             data: updatedMatch});
-    
+     
    } catch (error) {
         console.error("Error in join game: ", error.message);
         return res.status(500).json({ success: false, message: "Server error" });
